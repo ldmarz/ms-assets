@@ -15,12 +15,14 @@ final class Files: Codable {
     var hash: String
     var typeFile: String
     var asoc: String
+    var file: File
     
-    init(url: String, hash: String, typeFile: String, asoc: String) {
+    init(url: String, hash: String, typeFile: String, asoc: String, file: File) {
         self.url = url
         self.hash = hash
         self.typeFile = typeFile
         self.asoc = asoc
+        self.file = file
     }
 }
 

@@ -1,5 +1,7 @@
 import Vapor
 import FluentPostgreSQL
+import S3
+
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
@@ -16,6 +18,17 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     /// middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
+    
+    /// Register aws dependencie
+    let s3Client = S3Signer.Config(
+        accessKey: "AKIAIOSFODNN7EXAMPLE",
+        secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        region: Region(name: .usEast1,
+                       hostName: "127.0.0.1:9000",
+                       useTLS: false
+                )
+        )
+    try services.register(s3: s3Client, defaultBucket: "")
     
     /// Register the configured PostgreSql database to the database config.
     var databases = DatabasesConfig()
