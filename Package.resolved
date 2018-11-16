@@ -93,11 +93,11 @@
       },
       {
         "package": "S3",
-        "repositoryURL": "https://github.com/LiveUI/S3",
+        "repositoryURL": "https://github.com/gperdomor/S3",
         "state": {
-          "branch": null,
-          "revision": "9a7e7aa5486396665a792eed6489499ef33c344b",
-          "version": "3.0.0-rc2"
+          "branch": "patch-1",
+          "revision": "d489120e64f692e64ef17461212f7113564e8cfb",
+          "version": null
         }
       },
       {

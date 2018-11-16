@@ -3,6 +3,7 @@ import Fluent
 import Multipart
 import S3
 import Foundation
+import Crypto
 
 
 /// Controls basic CRUD operations on `Files`s.
@@ -10,34 +11,39 @@ final class FilesController: RouteCollection {
     func boot(router: Router) throws {
          let filesRoutes = router.grouped("api", "files")
         
-        filesRoutes.post(Files.self, use: upload)
-        filesRoutes.get("buckets", use: getBuckets)
+        filesRoutes.post(Files.self, use: save)
         filesRoutes.get(use: getAll)
+        
+        filesRoutes.post(FilesParams.self, at: "upload", use: upload)
+        filesRoutes.get("buckets", use: getBuckets)
     }
     
-    /// Returns a list of all `Files`s.
     func getAll(_ req: Request) throws -> Future<[Files]> {
         return Files.query(on: req).all()
     }
     
-    func upload(_ req: Request, uploadFile: Files) throws -> Future<String> {
+    func save(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
+        return fileToBeenSave.save(on: req)
+    }
+
+    func upload(_ req: Request, uploadFile: FilesParams) throws -> Future<Files> {
         let s3 = try req.makeS3Client()
-        let algo = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url)
-        
-        return try s3.put(file: algo, on: req)
-            .map(to: String.self) { result in
-                let json = try JSONEncoder().encode(result)
-                return String(data: json, encoding: .utf8) ?? "Unknown content!"
+        let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url)
+        let hashFromFile = try self.hashFile(file: uploadFile.file.data)
+
+        return try s3.put(file: fileToUpload, on: req)
+            .flatMap { result in
+                return Files(url: result.path, typeFile: result.mime, asoc: uploadFile.asoc, hash: hashFromFile)
+                    .save(on: req)
         }
+    }
+    
+    func hashFile(file: Data) throws -> String {
+        return try SHA256.hash(file).hexEncodedString().lowercased()
     }
     
     func getBuckets(_ req: Request) throws -> Future<BucketsInfo> {
         let s3 = try req.makeS3Client()
         return try s3.buckets(on: req)
-    }
-
-    /// Saves a decoded `Files` to the database.
-    func create(_ req: Request, file: Files) throws -> Future<Files> {
-        return file.save(on: req)
     }
 }

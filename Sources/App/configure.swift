@@ -1,6 +1,7 @@
 import Vapor
 import FluentPostgreSQL
 import S3
+import SimpleStorageSigner
 
 
 /// Called before your application initializes.
@@ -21,14 +22,14 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     /// Register aws dependencie
     let s3Client = S3Signer.Config(
-        accessKey: "AKIAIOSFODNN7EXAMPLE",
-        secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        accessKey: "36J9X8EZI4KEV1G7EHXA",
+        secretKey: "ECk2uqOoNqvtJIMQ3WYugvmNPL_-zm3WcRqP5vUM",
         region: Region(name: .usEast1,
                        hostName: "127.0.0.1:9000",
                        useTLS: false
                 )
         )
-    try services.register(s3: s3Client, defaultBucket: "")
+    try services.register(s3: s3Client, defaultBucket: "un-bucket")
     
     /// Register the configured PostgreSql database to the database config.
     var databases = DatabasesConfig()

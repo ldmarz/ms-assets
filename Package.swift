@@ -8,7 +8,8 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgresql.git", from: "1.0.0-rc"),
         .package(url: "https://github.com/vapor/multipart.git", from: "3.0.0"),
-        .package(url: "https://github.com/LiveUI/S3", from: "3.0.0-RC3.2"),
+        .package(url: "https://github.com/vapor/crypto.git", from: "3.3.0"),
+        .package(url: "https://github.com/gperdomor/S3", .branch("patch-1"))
     ],
     targets: [
         .target(name: "App", dependencies: ["FluentPostgreSQL", "Vapor", "Multipart", "S3"]),

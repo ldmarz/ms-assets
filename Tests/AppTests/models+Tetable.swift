@@ -10,8 +10,8 @@ import Foundation
 import FluentPostgreSQL
 
 extension Files {
-    static func create(url: String = "someNiceUrl", hash: String = "123qeqwe1dq", typeFile: String = ".png", asoc: String = "ms-account", on connection: PostgreSQLConnection) throws -> Files {
-        let file = Files(url: url, hash: hash, typeFile: typeFile, asoc: asoc, someIntField = 123)
+    static func create(url: String = "someNiceUrl", typeFile: String = ".png", asoc: String = "ms-account", hash: String = "123qeqwe1dq", on connection: PostgreSQLConnection) throws -> Files {
+        let file = Files(url: url, typeFile: typeFile, asoc: asoc, hash: hash)
         return try file.save(on: connection).wait()
     }
 }
