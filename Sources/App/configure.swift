@@ -1,7 +1,6 @@
 import Vapor
 import FluentPostgreSQL
 import S3
-import SimpleStorageSigner
 
 
 /// Called before your application initializes.

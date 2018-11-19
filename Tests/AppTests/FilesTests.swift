@@ -59,4 +59,45 @@ final class FileTests: XCTestCase {
         XCTAssertEqual(savedFile.asoc, asoc)
         XCTAssertEqual(savedFile.hash, "") // HASH is optional by preSignedAPI...
     }
+    
+    func testGettingASingleFileFromUser() throws {
+        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, hash: someHash, on: conn)
+        _ = try Files.create(on: conn)
+        
+        let recivedFile = try app.getResponse(
+            to: "\(filesURL)\(file.id!)",
+            decodeTo: Files.self)
+        
+        XCTAssertEqual(recivedFile.url, file.url)
+        XCTAssertEqual(recivedFile.typeFile, file.typeFile)
+        XCTAssertEqual(recivedFile.asoc, file.asoc)
+    }
+    
+    func testGettingMultiplesFilesByIds() throws {
+        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, hash: someHash, on: conn)
+        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: asoc, hash: someHash, on: conn)
+        _ = try Files.create(on: conn)
+        
+        let recivedFile = try app.getResponse(
+            to: "\(filesURL)?id=in:\(file1.id!.uuidString),\(file2.id!.uuidString)",
+            decodeTo: [Files].self
+        )
+        
+        XCTAssertEqual(recivedFile.count, 2)
+    }
+    
+    
+    func testGettingMultiplesFilesByAsoc() throws {
+        let newAsoc = "my_new_asco"
+        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: newAsoc, hash: someHash, on: conn)
+        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: newAsoc, hash: someHash, on: conn)
+        _ = try Files.create(on: conn)
+        
+        let recivedFile = try app.getResponse(
+            to: "\(filesURL)?asoc=in:\(file1.asoc),\(file2.asoc)",
+            decodeTo: [Files].self
+        )
+        
+        XCTAssertEqual(recivedFile.count, 2)
+    }
 }

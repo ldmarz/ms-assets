@@ -191,6 +191,15 @@
         }
       },
       {
+        "package": "VaporExt",
+        "repositoryURL": "https://github.com/vapor-community/vapor-ext.git",
+        "state": {
+          "branch": null,
+          "revision": "0d2944108c812e7c3499b4381f34b39235056eeb",
+          "version": "0.3.2"
+        }
+      },
+      {
         "package": "VaporTestTools",
         "repositoryURL": "https://github.com/LiveUI/VaporTestTools.git",
         "state": {

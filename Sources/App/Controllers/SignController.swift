@@ -6,7 +6,6 @@
 //
 import Vapor
 import Foundation
-import SimpleStorageSigner
 import S3
 
 final class SignController: RouteCollection {
@@ -20,7 +19,7 @@ final class SignController: RouteCollection {
     
     func preSignedUrl(_ req: Request) throws -> String {
         let s3 = try req.makeS3Signer()
-        
+        //        TODO: change this for urlComponents https://medium.com/swift2go/building-safe-url-in-swift-using-urlcomponents-and-urlqueryitem-alfian-losari-510a7b1f3c7e
         let url = URL(string: "http://localhost:9000/un-bucket/1_0AA8gnq8dOPvta")!
 
         guard
