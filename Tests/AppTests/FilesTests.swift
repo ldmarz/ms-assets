@@ -18,7 +18,7 @@ final class FileTests: XCTestCase {
     var url =  "http://ldmarz.com"
     var typeFile = "PNG"
     var asoc = "ms-account"
-    var someHash = "insert some nice hash here!"
+    var someNiceName = "name"
 
     
     
@@ -45,7 +45,7 @@ final class FileTests: XCTestCase {
     }
     
     func testFileCanBeSavedFromPreSignedAPI() throws {
-        let file = Files(url: url, typeFile: typeFile, asoc: asoc)
+        let file = Files(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc)
 
         let savedFile = try app.getResponse(
             to: "\(filesURL)",
@@ -60,7 +60,7 @@ final class FileTests: XCTestCase {
     }
     
     func testGettingASingleFileFromUser() throws {
-        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
+        let file = try Files.create(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         
         let recivedFile = try app.getResponse(
@@ -73,7 +73,7 @@ final class FileTests: XCTestCase {
     }
     
     func testGettingMultiplesFilesByIds() throws {
-        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
+        let file1 = try Files.create(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, on: conn)
         let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         
@@ -88,7 +88,7 @@ final class FileTests: XCTestCase {
     
     func testGettingMultiplesFilesByAsoc() throws {
         let newAsoc = "my_new_asco"
-        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: newAsoc, on: conn)
+        let file1 = try Files.create(url: url, name: someNiceName, typeFile: typeFile, asoc: newAsoc, on: conn)
         let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: newAsoc, on: conn)
         _ = try Files.create(on: conn)
         
@@ -101,7 +101,7 @@ final class FileTests: XCTestCase {
     }
     
     func testDeletingFile() throws {
-        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
+        let file1 = try Files.create(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         
         let _ = try app.sendRequest(

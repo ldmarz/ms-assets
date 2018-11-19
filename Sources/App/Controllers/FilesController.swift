@@ -45,10 +45,16 @@ final class FilesController: RouteCollection {
     }
     
     func delete(_ req: Request) throws -> Future<HTTPStatus> {
+        let s3 = try req.makeS3Client()
         return try req.parameters.next(Files.self)
-            .delete(on: req)
-            .transform(to:  HTTPStatus.ok)
-    }
+            .flatMap(to: HTTPStatus.self) { file in
+                return try s3.delete(file: file.name, on: req)
+                    .flatMap(to: HTTPStatus.self) { _ in
+                        return file.delete(on: req)
+                                    .transform(to: HTTPStatus.ok)
+                }
+            }
+        }
 
     func hashFile(file: Data) throws -> String {
         return try SHA256.hash(file).hexEncodedString().lowercased()
@@ -56,11 +62,12 @@ final class FilesController: RouteCollection {
     
     func upload(_ req: Request, uploadFile: FilesParams) throws -> Future<Files> {
         let s3 = try req.makeS3Client()
+//        Creating struct to upload
         let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url)
         
         return try s3.put(file: fileToUpload, on: req)
             .flatMap { result in
-                return Files(url: result.path, typeFile: result.mime, asoc: uploadFile.asoc)
+                return Files(url: result.path, name: uploadFile.name, typeFile: result.mime, asoc: uploadFile.asoc)
                     .save(on: req)
         }
     }
