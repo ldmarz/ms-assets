@@ -26,13 +26,13 @@ final class FilesController: RouteCollection {
             req.filter(\Files.asoc, at: "asoc"),
             ].compactMap { $0 }
         
-//         var sort: [Files.Database.QuerySort] = try [
-//             req.sort(\Files.createdAt, as: "createdAt")
-//             ].compactMap { $0 }
+         let sort: [Files.Database.QuerySort] = try [
+             req.sort(\Files.createdAt, as: "createdAt")
+             ].compactMap { $0 }
     
         
         return Files
-            .find(by: criteria, on: req)
+            .find(by: criteria, sortBy: sort, on: req)
     }
     
     func getFileById(_ req: Request) throws -> Future<Files> {

@@ -57,7 +57,6 @@ final class FileTests: XCTestCase {
         XCTAssertEqual(savedFile.url, url)
         XCTAssertEqual(savedFile.typeFile, typeFile)
         XCTAssertEqual(savedFile.asoc, asoc)
-        XCTAssertEqual(savedFile.hash, "") // HASH is optional by preSignedAPI...
     }
     
     func testGettingASingleFileFromUser() throws {
