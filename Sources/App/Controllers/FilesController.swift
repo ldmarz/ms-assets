@@ -17,6 +17,7 @@ final class FilesController: RouteCollection {
         filesRoutes.get(Files.parameter, use: getFileById)
         
         filesRoutes.post(FilesParams.self, at: "upload", use: upload)
+        filesRoutes.delete(Files.parameter, use: delete)
     }
     
     func index(_ req: Request) throws -> Future<[Files]> {
@@ -41,6 +42,12 @@ final class FilesController: RouteCollection {
     
     func save(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
         return fileToBeenSave.save(on: req)
+    }
+    
+    func delete(_ req: Request) throws -> Future<HTTPStatus> {
+        return try req.parameters.next(Files.self)
+            .delete(on: req)
+            .transform(to:  HTTPStatus.ok)
     }
 
     func hashFile(file: Data) throws -> String {

@@ -28,7 +28,7 @@ extension Application {
     
     func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content {
         let responder = try self.make(Responder.self)
-
+        print(path)
         let request = HTTPRequest(method: method, url: URL(string: path)!, headers: headers)
         let wrappedRequest = Request(http: request, using: self)
         if let body = body {

@@ -33,7 +33,7 @@ final class FileTests: XCTestCase {
     }
     
     func testFilesCanBeRetrievedFromAPI() throws {
-        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, hash: someHash, on: conn)
+        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         let files = try app.getResponse(to: filesURL, decodeTo: [Files].self)
         
@@ -60,7 +60,7 @@ final class FileTests: XCTestCase {
     }
     
     func testGettingASingleFileFromUser() throws {
-        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, hash: someHash, on: conn)
+        let file = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         
         let recivedFile = try app.getResponse(
@@ -73,8 +73,8 @@ final class FileTests: XCTestCase {
     }
     
     func testGettingMultiplesFilesByIds() throws {
-        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, hash: someHash, on: conn)
-        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: asoc, hash: someHash, on: conn)
+        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
+        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: asoc, on: conn)
         _ = try Files.create(on: conn)
         
         let recivedFile = try app.getResponse(
@@ -88,8 +88,8 @@ final class FileTests: XCTestCase {
     
     func testGettingMultiplesFilesByAsoc() throws {
         let newAsoc = "my_new_asco"
-        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: newAsoc, hash: someHash, on: conn)
-        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: newAsoc, hash: someHash, on: conn)
+        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: newAsoc, on: conn)
+        let file2 = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: newAsoc, on: conn)
         _ = try Files.create(on: conn)
         
         let recivedFile = try app.getResponse(
@@ -98,5 +98,19 @@ final class FileTests: XCTestCase {
         )
         
         XCTAssertEqual(recivedFile.count, 2)
+    }
+    
+    func testDeletingFile() throws {
+        let file1 = try Files.create(url: url, typeFile: typeFile, asoc: asoc, on: conn)
+        _ = try Files.create(on: conn)
+        
+        let _ = try app.sendRequest(
+            to: "\(filesURL)\(file1.id!.uuidString)",
+            method: .DELETE
+        )
+        
+        let files = try app.getResponse(to: filesURL, decodeTo: [Files].self)
+        
+        XCTAssertEqual(files.count, 1)
     }
 }
