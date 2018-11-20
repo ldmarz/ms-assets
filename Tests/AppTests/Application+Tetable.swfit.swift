@@ -8,6 +8,7 @@
 import Vapor
 import App
 import FluentPostgreSQL
+import S3
 
 extension Application {
     static func testable(envArgs: [String]? = nil) throws-> Application {

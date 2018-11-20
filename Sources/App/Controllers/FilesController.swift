@@ -67,7 +67,7 @@ final class FilesController: RouteCollection {
         
         return try s3.put(file: fileToUpload, on: req)
             .flatMap { result in
-                return Files(url: result.path, name: uploadFile.name, typeFile: result.mime, asoc: uploadFile.asoc)
+                return Files(url: result.path, name: uploadFile.name, typeFile: result.mime, asoc: uploadFile.asoc, hash: uploadFile.hash)
                     .save(on: req)
         }
     }
