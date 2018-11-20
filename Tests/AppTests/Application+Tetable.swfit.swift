@@ -10,6 +10,11 @@ import App
 import FluentPostgreSQL
 import S3
 
+struct errorResponse: Decodable {
+    var error: Bool
+    var reason: String
+}
+
 extension Application {
     static func testable(envArgs: [String]? = nil) throws-> Application {
         var config = Config.default()

@@ -10,7 +10,6 @@ import Vapor
 import XCTest
 import FluentPostgreSQL
 
-
 final class FileTests: XCTestCase {
     let filesURL = "/api/files/"
     var app: Application!
@@ -113,5 +112,21 @@ final class FileTests: XCTestCase {
         let files = try app.getResponse(to: filesURL, decodeTo: [Files].self)
         
         XCTAssertEqual(files.count, 1)
+    }
+    
+    func testCannotSavedTwoFilesWithTheSameHash() throws {
+        let uniqueHash = "hello World !!"
+        let file = Files(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, hash: uniqueHash)
+        let _ = try Files.create(url: "\(url)2", typeFile: "\(typeFile)2", asoc: asoc, hash: uniqueHash, on: conn)
+        
+        let savedFile = try app.getResponse(
+            to: "\(filesURL)",
+            method: .POST,
+            headers: ["Content-Type": "application/json"],
+            data: file,
+            decodeTo: errorResponse.self)
+        
+        XCTAssertEqual(savedFile.error, true)
+        XCTAssertEqual(savedFile.reason, "File already saved")
     }
 }
