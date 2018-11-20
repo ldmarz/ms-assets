@@ -41,7 +41,16 @@ final class FilesController: RouteCollection {
     }
     
     func save(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
-        return fileToBeenSave.save(on: req)
+        return Files.query(on: req)
+            .filter(\.hash == fileToBeenSave.hash)
+            .first()
+            .flatMap(to: Files.self) { fileByHash in
+                guard fileByHash == nil else {
+                    throw Abort(.badRequest, reason: "File already saved")
+                }
+                
+                return fileToBeenSave.save(on: req)
+        }
     }
     
     func delete(_ req: Request) throws -> Future<HTTPStatus> {
