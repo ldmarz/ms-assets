@@ -24,7 +24,7 @@ final class SignController: RouteCollection {
         }
         
         // TODO: this can be in a constans file
-        let url = self.generateURL(minioHost: "http://localhost:9000", bucket: "un-bucket", fileName: fileName)
+        let url = self.generateURL(minioHost: minio_hostname, bucket: temporallyBucket, fileName: fileName)
 
         guard
             let signedURL = try s3.presignedURL(for: .PUT, url: url!, expiration: Expiration.custom(604800))
@@ -33,7 +33,8 @@ final class SignController: RouteCollection {
     }
     
     func generateURL(minioHost: String, bucket: String, fileName: String) -> URL? {
-        return URL(string: "\(minioHost)/\(bucket)/\(fileName)")
+        let httpProtocol = usingTLS ? "https://" : "http://"
+        return URL(string: "\(httpProtocol)\(minioHost)/\(bucket)/\(fileName)")
     }
 }
 

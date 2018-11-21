@@ -93,7 +93,7 @@ extension Future where T == Files? {
             }
             
             let s3 = try req.makeS3Client()
-            let newLocation = File.Location(path: fileToBeenSave.name, bucket: "otro-bucket")
+            let newLocation = File.Location(path: fileToBeenSave.name, bucket: finalBucket)
             
             return try s3.copy(file: fileToBeenSave.name, to: newLocation, on: req)
                 .map { result in

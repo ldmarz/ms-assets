@@ -62,7 +62,7 @@ final class FilesController: RouteCollection {
     // This func is for manually upload file
     func upload(_ req: Request, uploadFile: FilesParams) throws -> Future<Files> {
         let s3 = try req.makeS3Client()
-        let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url) // Creating struct to upload
+        let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: temporallyBucket, destination: uploadFile.url) // Creating struct to upload
         
         return try s3.put(file: fileToUpload, on: req)
             .flatMap { result in
