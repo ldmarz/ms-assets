@@ -6,7 +6,6 @@ import Foundation
 import Crypto
 import VaporExt
 
-
 /// Controls basic CRUD operations on `Files`s.
 final class FilesController: RouteCollection {
     func boot(router: Router) throws {
@@ -21,7 +20,6 @@ final class FilesController: RouteCollection {
     }
     
     func index(_ req: Request) throws -> Future<[Files]> {
-        
         let criteria: [FilterOperator<Files.Database, Files>] = try [
             req.filter(\Files.id, at: "id"),
             req.filter(\Files.asoc, at: "asoc"),
@@ -41,9 +39,8 @@ final class FilesController: RouteCollection {
     }
     
     func save(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
-        return Files.query(on: req)
-            .filter(\.hash == fileToBeenSave.hash)
-            .first()
+        return try Files
+            .checkIfExistByHash(req, fileToBeenSave: fileToBeenSave)
             .flatMap(to: Files.self) { fileByHash in
                 guard fileByHash == nil else {
                     throw Abort(.badRequest, reason: "File already saved")
@@ -54,25 +51,20 @@ final class FilesController: RouteCollection {
     }
     
     func delete(_ req: Request) throws -> Future<HTTPStatus> {
-        let s3 = try req.makeS3Client()
         return try req.parameters.next(Files.self)
-            .flatMap(to: HTTPStatus.self) { file in
-                return try s3.delete(file: file.name, on: req)
-                    .flatMap(to: HTTPStatus.self) { _ in
-                        return file.delete(on: req)
-                                    .transform(to: HTTPStatus.ok)
-                }
-            }
+            .deleteFileInBucket(req)
+            .deleteFileInDatabase(req)
+            .transform(to: HTTPStatus.ok)
         }
 
     func hashFile(file: Data) throws -> String {
         return try SHA256.hash(file).hexEncodedString().lowercased()
     }
     
+    // This funct
     func upload(_ req: Request, uploadFile: FilesParams) throws -> Future<Files> {
         let s3 = try req.makeS3Client()
-//        Creating struct to upload
-        let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url)
+        let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url) // Creating struct to upload
         
         return try s3.put(file: fileToUpload, on: req)
             .flatMap { result in

@@ -8,6 +8,7 @@
 import Foundation
 import Vapor
 import FluentPostgreSQL
+import S3
 
 final class Files: Codable {
     var id: UUID?
@@ -44,7 +45,7 @@ struct FilesParams: Content {
     var typeFile: String
     var asoc: String
     var hash: String
-    var file: File
+    var file: Vapor.File
 }
 
 extension Files: PostgreSQLUUIDModel {
@@ -56,3 +57,28 @@ extension Files: PostgreSQLUUIDModel {
 extension Files: Parameter {}
 extension Files: Migration {}
 extension Files: Content {}
+
+extension Future where T == Files {
+    func deleteFileInBucket(_ req: Request) throws -> Future<Files> {
+        let s3 = try req.makeS3Client()
+        return flatMap { file in
+            return try s3.delete(file: file.name, on: req)
+                .map { return file }
+        }
+    }
+    
+    func deleteFileInDatabase(_ req: Request) throws -> Future<Void> {
+        return flatMap { file in
+            return file.delete(on: req)
+        }
+    }
+}
+
+extension Files {
+    static func checkIfExistByHash(_ req: Request, fileToBeenSave: Files) throws -> Future<Files?> {
+        return Files.query(on: req)
+            .filter(\.hash == fileToBeenSave.hash)
+            .first()
+    }
+}
+
