@@ -41,13 +41,11 @@ final class FilesController: RouteCollection {
     func save(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
         return try Files
             .checkIfExistByHash(req, fileToBeenSave: fileToBeenSave)
+            .ifExistCopyFileToPersistenceBucket(req, fileToBeenSave: fileToBeenSave)
+            .removeOldFile(req)
             .flatMap(to: Files.self) { fileByHash in
-                guard fileByHash == nil else {
-                    throw Abort(.badRequest, reason: "File already saved")
-                }
-                
                 return fileToBeenSave.save(on: req)
-        }
+            }
     }
     
     func delete(_ req: Request) throws -> Future<HTTPStatus> {
@@ -61,7 +59,7 @@ final class FilesController: RouteCollection {
         return try SHA256.hash(file).hexEncodedString().lowercased()
     }
     
-    // This funct
+    // This func is for manually upload file
     func upload(_ req: Request, uploadFile: FilesParams) throws -> Future<Files> {
         let s3 = try req.makeS3Client()
         let fileToUpload = File.Upload(data: uploadFile.file.data, bucket: "un-bucket", destination: uploadFile.url) // Creating struct to upload

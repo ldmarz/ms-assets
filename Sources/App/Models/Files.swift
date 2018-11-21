@@ -72,13 +72,39 @@ extension Future where T == Files {
             return file.delete(on: req)
         }
     }
+    
+    func removeOldFile(_ req: Request) throws -> Future<Void> {
+        return flatMap { file in
+            let s3 = try req.makeS3Client()
+            let oldLocation = File.Location(path: file.name)
+            return try s3.delete(file: oldLocation, on: req)
+        }
+    }
+}
+
+extension Future where T == Files? {
+    func ifExistCopyFileToPersistenceBucket(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
+        return flatMap { fileByHash in
+            guard fileByHash == nil else {
+                throw Abort(.badRequest, reason: "File already saved")
+            }
+            
+            let s3 = try req.makeS3Client()
+            let newLocation = File.Location(path: fileToBeenSave.name, bucket: "otro-bucket")
+            
+            return try s3.copy(file: fileToBeenSave.name, to: newLocation, on: req)
+                .map { result in
+                    return fileToBeenSave
+            }
+        }
+    }
 }
 
 extension Files {
-    static func checkIfExistByHash(_ req: Request, fileToBeenSave: Files) throws -> Future<Files?> {
+    static func 	checkIfExistByHash(_ req: Request, fileToBeenSave: Files) throws -> Future<Files?> {
         return Files.query(on: req)
             .filter(\.hash == fileToBeenSave.hash)
             .first()
     }
-}
+}	
 
