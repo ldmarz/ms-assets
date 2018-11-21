@@ -89,7 +89,7 @@ extension Future where T == Files? {
     func ifExistCopyFileToPersistenceBucket(_ req: Request, fileToBeenSave: Files) throws -> Future<Files> {
         return flatMap { fileByHash in
             guard fileByHash == nil else {
-                throw Abort(.badRequest, reason: "File already saved")
+                throw Abort(.conflict, reason: "File already saved")
             }
             
             let s3 = try req.makeS3Client()
