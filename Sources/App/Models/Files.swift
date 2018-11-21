@@ -78,6 +78,9 @@ extension Future where T == Files {
             let s3 = try req.makeS3Client()
             let oldLocation = File.Location(path: file.name)
             return try s3.delete(file: oldLocation, on: req)
+            .catchMap { error in
+                throw Abort(.internalServerError, reason: error.s3ErroMessage()?.message)
+            }
         }
     }
 }
@@ -95,7 +98,9 @@ extension Future where T == Files? {
             return try s3.copy(file: fileToBeenSave.name, to: newLocation, on: req)
                 .map { result in
                     return fileToBeenSave
-            }
+                }.catchMap { error in
+                    throw Abort(.internalServerError, reason: error.s3ErroMessage()?.message)
+                }
         }
     }
 }
