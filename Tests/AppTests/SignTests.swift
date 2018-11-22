@@ -14,10 +14,10 @@ final class SignTests: XCTestCase {
     var app: Application!
     var signController = SignController()
     let signURL = "/api/sign/"
-    let minioHost = "http://localhost:9000"
+    let minioHost = "localhost:9000"
     let bucket = "un-bucket"
     let nameFile = "1_0AA8gnq8dOPvta"
-    let expectedURL = "http://localhost:9000/un-bucket/1_0AA8gnq8dOPvta"
+    let expectedURL = "https://localhost:9000/un-bucket/1_0AA8gnq8dOPvta"
     
     struct algo: Content {}
     
@@ -32,6 +32,6 @@ final class SignTests: XCTestCase {
     
     func testCanCreateURLFromAPI() throws {
         let files = try app.getResponse(to: "\(signURL)presignedUrl?name=niceName", decodeTo: UrlSignedResponse.self)
-        XCTAssertEqual(files.url.count, 309)
+        XCTAssertEqual(files.url.count, 315)
     }
 }

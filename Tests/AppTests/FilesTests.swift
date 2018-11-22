@@ -9,6 +9,7 @@
 import Vapor
 import XCTest
 import FluentPostgreSQL
+import S3
 
 final class FileTests: XCTestCase {
     let filesURL = "/api/files/"
@@ -44,8 +45,20 @@ final class FileTests: XCTestCase {
          XCTAssertEqual(files[0].asoc, file.asoc)
     }
     
+    func testWeCanTestWithPlayMinio() throws{
+        let result = try Files.manuallyUploadToMinio()
+        let consulting = try Files.manuallyCheckIfExistFileOnMinio()
+        let delete = try Files.manuallyDeleteFileFromMinio()
+        
+        XCTAssertEqual(result, "done")
+        XCTAssertEqual(consulting, "hi")
+        XCTAssertEqual(delete, "done")
+    }
+    
+    
     func testFileCanBeSavedFromPreSignedAPI() throws {
-        let file = Files(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, hash: someNiceHash)
+        let _ = try Files.manuallyUploadToMinio()
+        let file = Files(url: url, name: fileName, typeFile: typeFile, asoc: asoc, hash: someNiceHash)
 
         let savedFile = try app.getResponse(
             to: "\(filesURL)",
@@ -57,6 +70,7 @@ final class FileTests: XCTestCase {
         XCTAssertEqual(savedFile.url, url)
         XCTAssertEqual(savedFile.typeFile, typeFile)
         XCTAssertEqual(savedFile.asoc, asoc)
+        try Files.cleanMinioBuckets()
     }
     
     func testGettingASingleFileFromUser() throws {
@@ -101,8 +115,10 @@ final class FileTests: XCTestCase {
     }
     
     func testDeletingFile() throws {
-        let file1 = try Files.create(url: url, name: someNiceName, typeFile: typeFile, asoc: asoc, hash: someNiceHash, on: conn)
+        let _ = try Files.manuallyUploadToMinio()
+        let file1 = try Files.create(url: url, name: fileName, typeFile: typeFile, asoc: asoc, hash: someNiceHash, on: conn)
         _ = try Files.create(on: conn)
+        var s3Error = ""
         
         let _ = try app.sendRequest(
             to: "\(filesURL)\(file1.id!.uuidString)",
@@ -110,8 +126,17 @@ final class FileTests: XCTestCase {
         )
         
         let files = try app.getResponse(to: filesURL, decodeTo: [Files].self)
-        
+
+        do {
+            let _ = try Files.manuallyCheckIfExistFileOnMinio()
+        } catch {
+            s3Error = error.s3ErroMessage()!.message
+        }
+
+
+        XCTAssertEqual("The specified key does not exist.", s3Error)
         XCTAssertEqual(files.count, 1)
+        try Files.cleanMinioBuckets()
     }
     
     func testCannotSavedTwoFilesWithTheSameHash() throws {
