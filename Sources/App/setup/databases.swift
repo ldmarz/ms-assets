@@ -11,10 +11,10 @@ import Vapor
 
 public func databases(config: inout DatabasesConfig) throws {
     let databaseConfig = PostgreSQLDatabaseConfig(
-        hostname: Environment.get("HOST") ?? "localhost",
-        username: Environment.get("USERNAME") ?? "postgres",
+        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+        username: Environment.get("DATABASE_USERNAME") ?? "postgres",
         database: Environment.get("DATABASE") ?? "files",
-        password: Environment.get("PASSWORD") ?? "123456")
+        password: Environment.get("DATABASE_PASSWORD") ?? "123456")
 
     let FilesDB = PostgreSQLDatabase(config: databaseConfig)
     config.add(database: FilesDB, as: .psql)

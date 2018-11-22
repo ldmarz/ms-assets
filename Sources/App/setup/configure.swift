@@ -1,10 +1,13 @@
 import Vapor
 import FluentPostgreSQL
 import S3
-
+import VaporExt
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
+    // Load .env file
+    Environment.dotenv()
+
     /// Register providers first
     try services.register(FluentPostgreSQLProvider())
 

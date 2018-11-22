@@ -9,9 +9,9 @@ import Foundation
 import S3
 
 public let temporallyBucket = Environment.get("TEMPORALLY_BUCKET", "un-bucket")
-public let finalBucket = Environment.get("FINAL_BUCKET", "otro-bucket")
+public let finalBucket = Environment.get("MINIO_FINAL_BUCKET", "otro-bucket")
 public let minio_hostname = Environment.get("MINIO_HOSTNAME", "127.0.0.1:9000")
-public let usingTLS = Environment.get("TLS", false) ? true : false
+public let usingTLS = Environment.get("MINIO_TLS", false)
 
 extension Region {
     public init ?(rawValue: String, hostName: String, useTLS: Bool) {
@@ -30,8 +30,8 @@ public func getS3Service() throws -> S3Signer.Config {
         useTLS: usingTLS)
     
     return S3Signer.Config(
-        accessKey: Environment.get("ACCESS_KEY", "36J9X8EZI4KEV1G7EHXA"),
-        secretKey: Environment.get("SECRET_KEY", "ECk2uqOoNqvtJIMQ3WYugvmNPL_-zm3WcRqP5vUM"),
+        accessKey: Environment.get("MINIO_ACCESS_KEY", "36J9X8EZI4KEV1G7EHXA"),
+        secretKey: Environment.get("MINIO_SECRET_KEY", "ECk2uqOoNqvtJIMQ3WYugvmNPL_-zm3WcRqP5vUM"),
         region: region!
     )
 }
