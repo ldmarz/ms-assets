@@ -4,4 +4,5 @@ import Vapor
 public func routes(_ router: Router) throws {
     try router.register(collection: FilesController())
     try router.register(collection: SignController())
+    try router.register(collection: DocsController())
 }

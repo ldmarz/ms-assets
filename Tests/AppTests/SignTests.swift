@@ -17,7 +17,7 @@ final class SignTests: XCTestCase {
     let minioHost = "localhost:9000"
     let bucket = "un-bucket"
     let nameFile = "1_0AA8gnq8dOPvta"
-    let expectedURL = "https://localhost:9000/un-bucket/1_0AA8gnq8dOPvta"
+    let expectedURL = "http://localhost:9000/un-bucket/1_0AA8gnq8dOPvta"
     
     struct algo: Content {}
     
@@ -31,7 +31,11 @@ final class SignTests: XCTestCase {
     }
     
     func testCanCreateURLFromAPI() throws {
-        let files = try app.getResponse(to: "\(signURL)presignedUrl?name=niceName", decodeTo: UrlSignedResponse.self)
-        XCTAssertEqual(files.url.count, 315)
+        let response = try app.getResponse(to: "\(signURL)presignedUrl?name=niceName", decodeTo: UrlSignedResponse.self)
+        let url = URL(string: response.url)
+
+        XCTAssertEqual(url!.host, "localhost")
+        XCTAssertEqual(url!.port, 9000)
+        XCTAssertEqual(url!.relativePath, "/un-bucket/niceName")
     }
 }

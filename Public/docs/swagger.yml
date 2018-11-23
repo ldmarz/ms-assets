@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  description: >-
+    This is an isolated micro service to hold information about multimedia files
+    using minio
+  version: "1.0.0-oas3"
+  title: Multimedia micro service
+  contact:
+    email: lenin@alliot.io
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Files
+    description: Affects directly the files models
+  - name: Sign
+    description: Sign methods
+paths:
+  /api/files:
+    get:
+      tags:
+        - Files
+      summary: searches files
+      operationId: searchFiles
+      description: |
+        You can apply filters using https://github.com/vapor-community/vapor-ext
+      parameters:
+        - in: query
+          name: ids
+          description: pass an optional search string for looking by ids
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: asoc
+          description: pass an optional search string for looking by asoc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Files'
+        '400':
+          description: bad input parameter
+    post:
+      tags:
+        - Files
+      summary: adds an file
+      operationId: addFile
+      description: >-
+        Save a file into database also moves the temporally file to a final
+        bucket
+      responses:
+        '201':
+          description: file added
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Files'
+        description: File to add
+  '/api/files/{id}':
+    get:
+      summary: represent a file
+      tags:
+        - Files
+      description: |
+        This resource represents an individual file in the system.
+      operationId: searchOneFile
+      parameters:
+        - name: id
+          in: path
+          description: ID from the file you want to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: the file founded
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Files'
+    delete:
+      summary: delete a file
+      tags:
+        - Files
+      description: |
+        Deletes a file from database also delete the file in minio
+      operationId: deleteOnFile
+      parameters:
+        - name: id
+          in: path
+          description: ID from the file you want to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: deleted sucefully
+        '404':
+          description: File not found
+  /api/sign/presignedUrl:
+    get:
+      tags:
+        - Sign
+      summary: Get a sign url in order to upload a file to minio
+      operationId: presignedURL
+      parameters:
+        - in: query
+          name: name
+          description: name from the file to upload
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Valid url to upload file to minio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: the signed url
+servers:
+  - url: 'http://localhost:8080'
+components:
+  schemas:
+    Files:
+      type: object
+      required:
+        - url
+        - name
+        - typeFile
+        - asoc
+        - hash
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          readOnly: true
+        url:
+          type: string
+          example: 'https://play.minio.io:9000/0000bucket/someNiceImage.jpg'
+        name:
+          type: string
+          example: someNiceImage.jpg
+        typeFile:
+          type: string
+          example: image
+        asoc:
+          type: string
+          example: ms-account
+        hash:
+          type: string
+          example: 356a192b7913b04c54574d18c28d46e6395428ab

@@ -99,7 +99,8 @@ extension Future where T == Files? {
                 .map { result in
                     return fileToBeenSave
                 }.catchMap { error in
-                    throw Abort(.internalServerError, reason: error.s3ErroMessage()?.message)
+                    print(error)
+                    throw Abort(.internalServerError, reason: error.localizedDescription)
                 }
         }
     }
