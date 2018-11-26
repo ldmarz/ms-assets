@@ -20,13 +20,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
     
     // CORS Midleware
-    let corsConfiguration = CORSMiddleware.Configuration(
-        allowedOrigin: .all,
-        allowedMethods: [.GET, .POST],
-        allowedHeaders: [.accept, .authorization, .contentType, .origin, .xRequestedWith, .userAgent, .accessControlAllowOrigin]
-    )
-    let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
-    middlewares.use(corsMiddleware)
+    middlewares.use(getCorsMiddleware())
     
     middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
